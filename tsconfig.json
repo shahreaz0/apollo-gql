@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
+    // "rootDir": "src",
+    "resolveJsonModule": true,
     "outDir": "dist",
     "target": "ES2022",
     "module": "ESNext",
