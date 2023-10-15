@@ -5,7 +5,8 @@
   "main": "src/server.ts",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/server"
+    "dev": "tsx watch src/server",
+    "start": "tsx src/server"
   },
   "keywords": [],
   "author": "",
