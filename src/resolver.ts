@@ -6,10 +6,75 @@ export const resolvers = {
     authors: () => db.authors,
     games: () => db.games,
     game: (_: any, args: { id: string }) => db.games.find((game) => game.id === args.id),
+    employees: async (_: any, args: any) => {
+      const url =
+        "https://api.attendancekeeper.net/hr/api/v1/employee/get-all-employee?company_uuid=0148ad01-c138-42f5-9609-01d3989e92f1";
+      const data = await (
+        await fetch(url, {
+          headers: {
+            "secret-key": "6433220e-5f0b-4238-bb11-046f589e9149",
+          },
+        })
+      ).json();
+
+      if (args.limit) {
+        return (data as any).data.slice(0, args.limit);
+      }
+
+      return (data as any).data;
+    },
+    worklogs: async (_: any, args: { limit: number }) => {
+      const url = new URL("https://worklog.attendancekeeper.net/api/v2/worklogs");
+
+      url.searchParams.append("sort", "datetime:desc");
+
+      if (args.limit) {
+        url.searchParams.append("limit", args.limit.toString());
+      }
+
+      const data = await (await fetch(url)).json();
+
+      if (args.limit) {
+        return (data as any).data.slice(0, args.limit);
+      }
+
+      return (data as any).data;
+    },
   },
+
+  Worklog: {
+    employee: async (parent: any) => {
+      console.log(parent.employee_uuid);
+
+      const url = `https://api.attendancekeeper.net/hr/api/v1/employee/single-employee/${parent.employee_uuid}/`;
+
+      const data = await (
+        await fetch(url, {
+          headers: {
+            "secret-key": "6433220e-5f0b-4238-bb11-046f589e9149",
+          },
+        })
+      ).json();
+
+      return (data as any).data;
+    },
+  },
+
+  Employee: {
+    worklogs: async (parent: any) => {
+      const url = new URL("https://worklog.attendancekeeper.net/api/v2/worklogs");
+      url.searchParams.append("employee_uuid", parent.uuid);
+
+      const data = await (await fetch(url)).json();
+
+      return (data as any).data;
+    },
+  },
+
   Game: {
-    reviews: (parent: { id: string }) =>
-      db.reviews.filter((review) => review.game_id === parent.id),
+    reviews: (parent: { id: string }) => {
+      return db.reviews.filter((review) => review.game_id === parent.id);
+    },
   },
   Review: {
     game: (parent: { game_id: string }) =>
